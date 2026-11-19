@@ -20,3 +20,21 @@ copyFileSync(src, dst);
 if (statSync(dst).size !== statSync(src).size) {
   throw new Error('copied entry.png does not match the source size');
 }
+
+// Verify the written output: it must exist, be non-empty, and stay within
+// the competition's 1 MiB limit for the entry image.
+const MAX_BYTES = 1048576;
+if (!existsSync(dst)) {
+  console.error(`output missing: ${dst}`);
+  process.exit(1);
+}
+const outSize = statSync(dst).size;
+if (outSize === 0) {
+  console.error(`output is empty: ${dst}`);
+  process.exit(1);
+}
+if (outSize > MAX_BYTES) {
+  console.error(`output too large: ${dst} is ${outSize} bytes (limit ${MAX_BYTES})`);
+  process.exit(1);
+}
+console.log(`wrote ${dst} (${outSize} bytes)`);
